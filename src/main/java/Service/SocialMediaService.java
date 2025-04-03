@@ -81,4 +81,14 @@ public class SocialMediaService {
     public List<Message> getAllMessages(){
         return this.messageDao.getAllMessages();
     }
+    public Optional<Message> getMessage(String messageIdParam){
+        int messageId;
+        try {
+            messageId = Integer.parseInt(messageIdParam);
+            
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+        return this.messageDao.getMessageById(messageId);
+    }
 }

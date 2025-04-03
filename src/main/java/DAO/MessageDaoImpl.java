@@ -68,5 +68,30 @@ public class MessageDaoImpl implements MessageDao{
 
         return messages;
     }
+    public Optional<Message> getMessageById(int messageId){
+        Connection conn = ConnectionUtil.getConnection();
+        String query = "SELECT * FROM message WHERE message_id = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1,messageId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
+                //(int message_id, int posted_by, String message_text, long time_posted_epoch)
+                int id = rs.getInt(1);
+                int postBy = rs.getInt(2);
+                String messageText = rs.getString(3);
+                long epochTime = rs.getLong(4);
+
+                return Optional.of(new Message(id,postBy,messageText,epochTime));
+            }
+            
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return Optional.empty();
+    }
 
 }

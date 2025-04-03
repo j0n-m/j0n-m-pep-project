@@ -1,5 +1,6 @@
 package Controller;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -39,6 +40,8 @@ public class SocialMediaController {
         app.get("/messages",this::getMessagesHandler);
         app.post("/messages",this::createMessageHandler);
 
+        app.get("/messages/{message_id}",this::getMessageByIdHandler);
+
         return app;
     }
 
@@ -59,11 +62,7 @@ public class SocialMediaController {
         Optional<Account> updatedUser = this.service.createAccount(user);
 
         //determine return based on if data is null or not
-        if(updatedUser.isEmpty()){
-            ctx.status(400);
-        }else{
-            ctx.json(updatedUser.get());
-        }
+        updatedUser.ifPresentOrElse((u->ctx.json(u)), ()->ctx.status(400));
 
     }
     private void loginHandler(Context ctx) throws JsonProcessingException{
@@ -71,11 +70,8 @@ public class SocialMediaController {
         Account user = mapper.readValue(ctx.body(),Account.class);
 
         Optional<Account> authUser = this.service.authenticate(user);
-        if(authUser.isEmpty()){
-            ctx.status(401);
-        }else{
-            ctx.json(authUser.get());
-        }
+
+        authUser.ifPresentOrElse((u->ctx.json(u)), ()->ctx.status(401));
     }
     private void createMessageHandler(Context ctx)throws JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
@@ -83,15 +79,20 @@ public class SocialMediaController {
 
         Optional<Message> messageRes = this.service.createMessage(messageReq);
         
-        if(messageRes.isEmpty()){
-            ctx.status(400);
-        }else{
-            ctx.json(messageRes.get());
-        }
+        messageRes.ifPresentOrElse((m)->ctx.json(m), ()->ctx.status(400));
     }
 
     private void getMessagesHandler(Context ctx){
         ctx.json(this.service.getAllMessages());
+    }
+
+    private void getMessageByIdHandler(Context ctx){
+        String paramId = ctx.pathParam("message_id");
+        
+        Optional<Message> message = this.service.getMessage(paramId);
+
+        message.ifPresentOrElse((m)->ctx.json(m), ()->ctx.status(200));
+
     }
 
 }
