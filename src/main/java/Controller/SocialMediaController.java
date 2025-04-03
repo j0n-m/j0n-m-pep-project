@@ -41,6 +41,7 @@ public class SocialMediaController {
         app.post("/messages",this::createMessageHandler);
 
         app.get("/messages/{message_id}",this::getMessageByIdHandler);
+        app.delete("/messages/{message_id}",this::deleteMessageByIdHandler);
 
         return app;
     }
@@ -90,6 +91,15 @@ public class SocialMediaController {
         String paramId = ctx.pathParam("message_id");
         
         Optional<Message> message = this.service.getMessage(paramId);
+
+        message.ifPresentOrElse((m)->ctx.json(m), ()->ctx.status(200));
+
+    }
+
+    private void deleteMessageByIdHandler(Context ctx){
+        String messageIdParam = ctx.pathParam("message_id");
+
+        Optional<Message> message = this.service.deleteMessage(messageIdParam);
 
         message.ifPresentOrElse((m)->ctx.json(m), ()->ctx.status(200));
 

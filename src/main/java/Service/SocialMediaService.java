@@ -91,4 +91,20 @@ public class SocialMediaService {
         }
         return this.messageDao.getMessageById(messageId);
     }
+
+    public Optional<Message> deleteMessage(String messageIdParam){
+        int messageId;
+        try {
+            messageId = Integer.parseInt(messageIdParam);
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+        Optional<Message> messageToBeRemoved = this.messageDao.getMessageById(messageId);
+
+        if(messageToBeRemoved.isEmpty()){
+            return messageToBeRemoved;
+        }
+        this.messageDao.deleteMessageById(messageId);
+        return messageToBeRemoved;
+    }
 }

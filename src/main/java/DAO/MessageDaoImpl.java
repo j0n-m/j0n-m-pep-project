@@ -94,4 +94,22 @@ public class MessageDaoImpl implements MessageDao{
         return Optional.empty();
     }
 
+    public int deleteMessageById(int messageId){
+        Connection conn = ConnectionUtil.getConnection();
+        String query = "DELETE FROM message WHERE message_id = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1,messageId);
+
+            int rowAffected = ps.executeUpdate();
+            return rowAffected;
+
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return 0;
+
+    }
 }

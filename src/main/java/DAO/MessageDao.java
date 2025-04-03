@@ -9,5 +9,6 @@ public interface MessageDao {
     Optional<Message> insertMessage(Message message);
     List<Message> getAllMessages();
     Optional<Message> getMessageById(int messageId);
+    int deleteMessageById(int messageId);
 
 }
