@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +52,7 @@ public class MessageDaoImpl implements MessageDao{
             ResultSet rs = stmt.executeQuery(query);
 
             while(rs.next()){
-                //(int message_id, int posted_by, String message_text, long time_posted_epoch)
+
                 int messageId = rs.getInt(1);
                 int postById = rs.getInt(2);
                 String messageText = rs.getString(3);
@@ -79,7 +78,7 @@ public class MessageDaoImpl implements MessageDao{
             ResultSet rs = ps.executeQuery();
 
             if(rs.next()){
-                //(int message_id, int posted_by, String message_text, long time_posted_epoch)
+
                 int id = rs.getInt(1);
                 int postBy = rs.getInt(2);
                 String messageText = rs.getString(3);
