@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import Model.Message;
@@ -38,6 +40,33 @@ public class MessageDaoImpl implements MessageDao{
         }
 
         return Optional.empty();
+    }
+    public List<Message> getAllMessages(){
+        Connection conn = ConnectionUtil.getConnection();
+        List<Message> messages = new ArrayList<>();
+
+        String query = "SELECT * FROM message";
+
+        try {
+            Statement stmt = conn.createStatement();
+
+            ResultSet rs = stmt.executeQuery(query);
+
+            while(rs.next()){
+                //(int message_id, int posted_by, String message_text, long time_posted_epoch)
+                int messageId = rs.getInt(1);
+                int postById = rs.getInt(2);
+                String messageText = rs.getString(3);
+                long epochTime = rs.getLong(4);
+
+                messages.add(new Message(messageId,postById,messageText,epochTime));
+            }
+            
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return messages;
     }
 
 }

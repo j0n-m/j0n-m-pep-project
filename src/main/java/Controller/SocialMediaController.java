@@ -36,6 +36,7 @@ public class SocialMediaController {
         app.post("/register",this::registerHandler);
         app.post("/login",this::loginHandler);
 
+        app.get("/messages",this::getMessagesHandler);
         app.post("/messages",this::createMessageHandler);
 
         return app;
@@ -80,11 +81,8 @@ public class SocialMediaController {
         ObjectMapper mapper = new ObjectMapper();
         Message messageReq = mapper.readValue(ctx.body(),Message.class);
 
-        System.out.println("messagereq: " + messageReq);
         Optional<Message> messageRes = this.service.createMessage(messageReq);
-        System.out.println("messageres: " + messageRes);
         
-
         if(messageRes.isEmpty()){
             ctx.status(400);
         }else{
@@ -92,5 +90,8 @@ public class SocialMediaController {
         }
     }
 
+    private void getMessagesHandler(Context ctx){
+        ctx.json(this.service.getAllMessages());
+    }
 
 }

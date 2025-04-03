@@ -1,5 +1,7 @@
 package Service;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import DAO.AccountDao;
@@ -69,8 +71,14 @@ public class SocialMediaService {
             return Optional.empty();
         }
 
+        //ensure that epochtime is always set if not provided
+        long epochTime = message.getTime_posted_epoch() !=0 ? message.getTime_posted_epoch() : Instant.now().toEpochMilli();
+        message.setTime_posted_epoch(epochTime);
+
         return this.messageDao.insertMessage(message);
 
-
+    }
+    public List<Message> getAllMessages(){
+        return this.messageDao.getAllMessages();
     }
 }
