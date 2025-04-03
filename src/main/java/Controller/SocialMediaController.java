@@ -1,5 +1,14 @@
 package Controller;
 
+import java.util.Optional;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import DAO.AccountDaoImpl;
+import DAO.MessageDaoImpl;
+import Model.Account;
+import Service.SocialMediaService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -14,9 +23,16 @@ public class SocialMediaController {
      * suite must receive a Javalin object from this method.
      * @return a Javalin app object which defines the behavior of the Javalin controller.
      */
+    private SocialMediaService service;
+
+    public SocialMediaController(){
+        this.service = new SocialMediaService(new AccountDaoImpl(), new MessageDaoImpl());
+    }
+     
     public Javalin startAPI() {
         Javalin app = Javalin.create();
-        app.get("example-endpoint", this::exampleHandler);
+        app.get("/example", this::exampleHandler);
+        app.post("/register",this::registerHandler);
 
         return app;
     }
@@ -27,6 +43,23 @@ public class SocialMediaController {
      */
     private void exampleHandler(Context context) {
         context.json("sample text");
+    }
+
+    private void registerHandler(Context ctx) throws JsonProcessingException{
+        //convert json to Account class
+        ObjectMapper mapper = new ObjectMapper();
+        Account user = mapper.readValue(ctx.body(),Account.class);
+
+        //pass user to service class
+        Optional<Account> updatedUser = this.service.createAccount(user);
+
+        //determine return based on if data is null or not
+        if(updatedUser.isEmpty()){
+            ctx.status(400);
+        }else{
+            ctx.json(updatedUser.get());
+        }
+
     }
 
 
