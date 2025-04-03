@@ -61,5 +61,27 @@ public class AccountDaoImpl implements AccountDao{
         }
         return Optional.empty();
     }
+    public Optional<Account> getAccountById(int userId){
+        Connection conn = ConnectionUtil.getConnection();
+        String query = "SELECT account_id,username,password FROM account WHERE account_id = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1,userId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
+                int id = rs.getInt(1);
+                String uname = rs.getString("username");
+                String pass = rs.getString("password");
+                return Optional.of(new Account(id,uname,pass));
+            }
+            
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return Optional.empty();
+    }
 
 }

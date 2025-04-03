@@ -5,6 +5,7 @@ import java.util.Optional;
 import DAO.AccountDao;
 import DAO.MessageDao;
 import Model.Account;
+import Model.Message;
 
 public class SocialMediaService {
     private AccountDao accountDao;
@@ -53,6 +54,23 @@ public class SocialMediaService {
             return potentialUserOptional;
         }
         return Optional.empty();
+
+    }
+    public Optional<Message> createMessage(Message message){
+        //validate message text
+        if(message.getMessage_text() == null || message.getMessage_text().isBlank() || message.getMessage_text().length() >= 255){
+            return Optional.empty();
+        }
+        //check if user exists in db
+        Optional<Account> possibleUser = this.accountDao.getAccountById(message.getPosted_by());
+
+        //guard check to return early if no valid user found
+        if(possibleUser.isEmpty()){
+            return Optional.empty();
+        }
+
+        return this.messageDao.insertMessage(message);
+
 
     }
 }

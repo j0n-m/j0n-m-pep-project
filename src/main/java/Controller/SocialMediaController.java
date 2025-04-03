@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import DAO.AccountDaoImpl;
 import DAO.MessageDaoImpl;
 import Model.Account;
+import Model.Message;
 import Service.SocialMediaService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -34,6 +35,8 @@ public class SocialMediaController {
         app.get("/example", this::exampleHandler);
         app.post("/register",this::registerHandler);
         app.post("/login",this::loginHandler);
+
+        app.post("/messages",this::createMessageHandler);
 
         return app;
     }
@@ -71,6 +74,21 @@ public class SocialMediaController {
             ctx.status(401);
         }else{
             ctx.json(authUser.get());
+        }
+    }
+    private void createMessageHandler(Context ctx)throws JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
+        Message messageReq = mapper.readValue(ctx.body(),Message.class);
+
+        System.out.println("messagereq: " + messageReq);
+        Optional<Message> messageRes = this.service.createMessage(messageReq);
+        System.out.println("messageres: " + messageRes);
+        
+
+        if(messageRes.isEmpty()){
+            ctx.status(400);
+        }else{
+            ctx.json(messageRes.get());
         }
     }
 

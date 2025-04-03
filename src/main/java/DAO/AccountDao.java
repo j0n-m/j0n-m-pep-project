@@ -8,5 +8,6 @@ public interface AccountDao {
 
     Optional<Account> insertAccount(Account user);
     Optional<Account> getAccountByUsername(String username);
+    Optional<Account> getAccountById(int userId);
 
 }
