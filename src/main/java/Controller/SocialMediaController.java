@@ -1,6 +1,6 @@
 package Controller;
 
-import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -43,6 +43,8 @@ public class SocialMediaController {
         app.get("/messages/{message_id}",this::getMessageByIdHandler);
         app.delete("/messages/{message_id}",this::deleteMessageByIdHandler);
         app.patch("/messages/{message_id}",this::patchMessageByIdHandler);
+
+        app.get("/accounts/{account_id}/messages", this::getMessagesByUserHandler);
 
         return app;
     }
@@ -116,6 +118,12 @@ public class SocialMediaController {
 
         revisedMessage.ifPresentOrElse((m)->ctx.json(m), ()->ctx.status(400));
 
+    }
+    private void getMessagesByUserHandler(Context ctx){
+        String accountIdParam = ctx.pathParam("account_id");
+
+        List<Message> messages = this.service.getAllMessagesByUser(accountIdParam);
+        ctx.json(messages);
     }
 
 }

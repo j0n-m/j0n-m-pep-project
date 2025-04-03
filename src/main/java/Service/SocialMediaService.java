@@ -1,6 +1,7 @@
 package Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -101,11 +102,13 @@ public class SocialMediaService {
         }
         Optional<Message> messageToBeRemoved = this.messageDao.getMessageById(messageId);
 
-        if(messageToBeRemoved.isEmpty()){
+        int rowsAffected = this.messageDao.deleteMessageById(messageId);
+
+        if(rowsAffected > 0){
             return messageToBeRemoved;
         }
-        this.messageDao.deleteMessageById(messageId);
-        return messageToBeRemoved;
+
+        return Optional.empty();
     }
 
     public Optional<Message> patchMessageTextById(String messageIdParam,String revisedMessageText){
@@ -128,9 +131,17 @@ public class SocialMediaService {
             Message oldMessage = messageToBeRevised.get();
             return Optional.of(new Message(oldMessage.getMessage_id(),oldMessage.getPosted_by(),revisedMessageText,oldMessage.getTime_posted_epoch()));
         }
-        
+
         return Optional.empty();
-        
-        
+    }
+    public List<Message> getAllMessagesByUser(String accountIdParam){
+        int accountId;
+        try {
+            accountId = Integer.parseInt(accountIdParam);
+            
+        } catch (NumberFormatException e) {
+            return new ArrayList<Message>();
+        }
+        return this.messageDao.getAllMessagesByUser(accountId);
     }
 }

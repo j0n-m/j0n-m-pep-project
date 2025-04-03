@@ -11,5 +11,6 @@ public interface MessageDao {
     Optional<Message> getMessageById(int messageId);
     int deleteMessageById(int messageId);
     int patchMessageById(int messageId,String revisedMessageText);
+    List<Message> getAllMessagesByUser(int accountId);
 
 }

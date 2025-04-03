@@ -130,4 +130,31 @@ public class MessageDaoImpl implements MessageDao{
         }
         return 0;
     }
+    public List<Message> getAllMessagesByUser(int accountId){
+        Connection conn = ConnectionUtil.getConnection();
+        List<Message> messagesByUser = new ArrayList<>();
+
+        String query = "SELECT * FROM message WHERE posted_by = ?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1,accountId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                int messageId = rs.getInt(1);
+                int postedBy = rs.getInt(2);
+                String messageText = rs.getString(3);
+                long epochTime = rs.getLong(4);
+
+                messagesByUser.add(new Message(messageId,postedBy,messageText,epochTime));
+            }
+
+            
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return messagesByUser;
+    }
 }
