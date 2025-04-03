@@ -102,8 +102,8 @@ public class MessageDaoImpl implements MessageDao{
             PreparedStatement ps = conn.prepareStatement(query);
             ps.setInt(1,messageId);
 
-            int rowAffected = ps.executeUpdate();
-            return rowAffected;
+            int numOfRowsAffected = ps.executeUpdate();
+            return numOfRowsAffected;
 
 
         } catch (SQLException e) {
@@ -111,5 +111,23 @@ public class MessageDaoImpl implements MessageDao{
         }
         return 0;
 
+    }
+
+    public int patchMessageById(int messageId,String revisedMessageText){
+        Connection conn = ConnectionUtil.getConnection();
+        String query = "UPDATE message SET message_text = ? WHERE message_id = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1,revisedMessageText);
+            ps.setInt(2,messageId);
+
+            int numOfRowsAffected = ps.executeUpdate();
+            return numOfRowsAffected;
+            
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return 0;
     }
 }

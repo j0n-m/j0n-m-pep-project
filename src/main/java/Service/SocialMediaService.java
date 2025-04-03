@@ -60,7 +60,7 @@ public class SocialMediaService {
     }
     public Optional<Message> createMessage(Message message){
         //validate message text
-        if(message.getMessage_text() == null || message.getMessage_text().isBlank() || message.getMessage_text().length() >= 255){
+        if(message.getMessage_text() == null || message.getMessage_text().isBlank() || message.getMessage_text().length() > 255){
             return Optional.empty();
         }
         //check if user exists in db
@@ -106,5 +106,31 @@ public class SocialMediaService {
         }
         this.messageDao.deleteMessageById(messageId);
         return messageToBeRemoved;
+    }
+
+    public Optional<Message> patchMessageTextById(String messageIdParam,String revisedMessageText){
+        int messageId;
+        try {
+            messageId = Integer.parseInt(messageIdParam);
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+
+        if(revisedMessageText == null || revisedMessageText.isBlank() || revisedMessageText.length() > 255){
+            return Optional.empty();
+        }
+        //query old message to use as return value if a row was affected when patching
+        Optional<Message> messageToBeRevised = this.messageDao.getMessageById(messageId);
+
+        int rowsAffected = this.messageDao.patchMessageById(messageId,revisedMessageText);
+        
+        if(rowsAffected > 0){
+            Message oldMessage = messageToBeRevised.get();
+            return Optional.of(new Message(oldMessage.getMessage_id(),oldMessage.getPosted_by(),revisedMessageText,oldMessage.getTime_posted_epoch()));
+        }
+        
+        return Optional.empty();
+        
+        
     }
 }
