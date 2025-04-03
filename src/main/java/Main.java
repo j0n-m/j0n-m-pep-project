@@ -1,4 +1,5 @@
 import Controller.SocialMediaController;
+import Util.ConnectionUtil;
 import io.javalin.Javalin;
 
 /**
@@ -8,6 +9,7 @@ import io.javalin.Javalin;
 public class Main {
     public static void main(String[] args) {
         SocialMediaController controller = new SocialMediaController();
+        ConnectionUtil.resetTestDatabase();
         Javalin app = controller.startAPI();
         app.start(8080);
     }
