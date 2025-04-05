@@ -12,5 +12,6 @@ public class Main {
         ConnectionUtil.resetTestDatabase();
         Javalin app = controller.startAPI();
         app.start(8080);
+        
     }
 }
