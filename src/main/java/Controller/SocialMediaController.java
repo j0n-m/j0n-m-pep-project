@@ -10,7 +10,8 @@ import DAO.AccountDaoImpl;
 import DAO.MessageDaoImpl;
 import Model.Account;
 import Model.Message;
-import Service.SocialMediaService;
+import Service.AccountService;
+import Service.MessageService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -25,10 +26,15 @@ public class SocialMediaController {
      * suite must receive a Javalin object from this method.
      * @return a Javalin app object which defines the behavior of the Javalin controller.
      */
-    private SocialMediaService service;
+    //private SocialMediaService service;
+    private MessageService messageService;
+    private AccountService accountService;
 
     public SocialMediaController(){
-        this.service = new SocialMediaService(new AccountDaoImpl(), new MessageDaoImpl());
+        //this.service = new SocialMediaService(new AccountDaoImpl(), new MessageDaoImpl());
+        this.messageService = new MessageService(new MessageDaoImpl());
+        this.accountService = new AccountService(new AccountDaoImpl());
+
     }
      
     public Javalin startAPI() {
@@ -63,7 +69,7 @@ public class SocialMediaController {
         Account user = mapper.readValue(ctx.body(),Account.class);
 
         //pass user to service class
-        Optional<Account> updatedUser = this.service.createAccount(user);
+        Optional<Account> updatedUser = this.accountService.createAccount(user);
 
         //determine return based on if data is null or not
         updatedUser.ifPresentOrElse((u->ctx.json(u)), ()->ctx.status(400));
@@ -73,7 +79,7 @@ public class SocialMediaController {
         ObjectMapper mapper = new ObjectMapper();
         Account user = mapper.readValue(ctx.body(),Account.class);
 
-        Optional<Account> authUser = this.service.authenticate(user);
+        Optional<Account> authUser = this.accountService.authenticate(user);
 
         authUser.ifPresentOrElse((u->ctx.json(u)), ()->ctx.status(401));
     }
@@ -81,19 +87,20 @@ public class SocialMediaController {
         ObjectMapper mapper = new ObjectMapper();
         Message messageReq = mapper.readValue(ctx.body(),Message.class);
 
-        Optional<Message> messageRes = this.service.createMessage(messageReq);
+        Optional<Account> possibleUser = this.accountService.getAccountById(messageReq.getPosted_by());
+        Optional<Message> messageRes = this.messageService.createMessage(messageReq,possibleUser.orElse(null));
         
         messageRes.ifPresentOrElse((m)->ctx.json(m), ()->ctx.status(400));
     }
 
     private void getMessagesHandler(Context ctx){
-        ctx.json(this.service.getAllMessages());
+        ctx.json(this.messageService.getAllMessages());
     }
 
     private void getMessageByIdHandler(Context ctx){
         String paramId = ctx.pathParam("message_id");
         
-        Optional<Message> message = this.service.getMessage(paramId);
+        Optional<Message> message = this.messageService.getMessage(paramId);
 
         message.ifPresentOrElse((m)->ctx.json(m), ()->ctx.status(200));
 
@@ -102,7 +109,7 @@ public class SocialMediaController {
     private void deleteMessageByIdHandler(Context ctx){
         String messageIdParam = ctx.pathParam("message_id");
 
-        Optional<Message> message = this.service.deleteMessage(messageIdParam);
+        Optional<Message> message = this.messageService.deleteMessage(messageIdParam);
 
         message.ifPresentOrElse((m)->ctx.json(m), ()->ctx.status(200));
 
@@ -114,7 +121,7 @@ public class SocialMediaController {
 
         String revisedMessageText = mapper.readValue(ctx.body(),Message.class).getMessage_text();
 
-        Optional<Message> revisedMessage = this.service.patchMessageTextById(messageIdParam,revisedMessageText);
+        Optional<Message> revisedMessage = this.messageService.patchMessageTextById(messageIdParam,revisedMessageText);
 
         revisedMessage.ifPresentOrElse((m)->ctx.json(m), ()->ctx.status(400));
 
@@ -122,7 +129,7 @@ public class SocialMediaController {
     private void getMessagesByUserHandler(Context ctx){
         String accountIdParam = ctx.pathParam("account_id");
 
-        List<Message> messages = this.service.getAllMessagesByUser(accountIdParam);
+        List<Message> messages = this.messageService.getAllMessagesByUser(accountIdParam);
         ctx.json(messages);
     }
 
